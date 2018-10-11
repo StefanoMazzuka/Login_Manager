@@ -4,6 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -13,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import Controller.Application;
+import Controller.ExcelExporter;
 import Controller.FileManagement;
 import Controller.User;
 
@@ -32,8 +38,7 @@ import java.awt.datatransfer.StringSelection;
 
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
-import javax.swing.ComboBoxEditor;
-import javax.swing.ComboBoxModel;
+import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import java.awt.Font;
@@ -45,6 +50,10 @@ import javax.swing.ScrollPaneConstants;
 
 public class View extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField textFieldNewApplication;
 	private JTextField textFieldNewUser;
@@ -73,7 +82,9 @@ public class View extends JFrame {
 	 * Create the frame.
 	 */
 	public View() {
+		setTitle("Login Manager");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setIconImage(Toolkit.getDefaultToolkit().getImage(View.class.getResource("/Image/icon.png")));
 		setBounds(100, 100, 450, 396);
 		setLocationRelativeTo(null);
 
@@ -95,11 +106,64 @@ public class View extends JFrame {
 		JMenuItem mntmExport = new JMenuItem("Exportar");
 		mntmExport.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		mnFile.add(mntmExport);
+		
+		mntmExport.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				exportModel();
+			}
+		});
+		
+		JMenu mnHelp = new JMenu("Ayuda");
+		mnHelp.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
+		menuBar.add(mnHelp);
+		
+		JMenuItem mntmAbout = new JMenuItem("Sobre Login Manager");
+		mntmAbout.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
+		mnHelp.add(mntmAbout);
+		
+		JMenuItem mntmContact = new JMenuItem("Contacto");
+		mntmContact.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
+		mnHelp.add(mntmContact);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new CardLayout(0, 0));
+		
+		mntmAbout.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					java.awt.Desktop.getDesktop().browse(
+							java.net.URI.create("https://github.com/StefanoMazzuka/Login_Manager"));
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		mntmContact.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub		
+				JLabel[] labels = new JLabel[4];
+				labels[0] = new JLabel("Autor:");
+				labels[0].setFont(new Font("Arial", Font.BOLD, 12));
+				labels[1] = new JLabel("Stefano Mazzuka");
+				labels[1].setFont(new Font("Arial", Font.ITALIC, 12));
+				labels[2] = new JLabel("Correo:");
+				labels[2].setFont(new Font("Arial", Font.BOLD, 12));
+				labels[3] = new JLabel("stefano.mazzuka@gmail.com");
+				labels[3].setFont(new Font("Arial", Font.ITALIC, 12));
+				JOptionPane.showMessageDialog( null, labels, null, JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		
 		JPanel panelSearch = new JPanel();
 		contentPane.add(panelSearch, "panelSearch");
 		panelSearch.setLayout(new BorderLayout(0, 0));
@@ -381,7 +445,7 @@ public class View extends JFrame {
 		gbc_btnCopyUser.gridx = 1;
 		gbc_btnCopyUser.gridy = 1;
 		panelButtons.add(btnCopyUser, gbc_btnCopyUser);
-		
+
 		JButton btnDeleteUser = new JButton("Borrar usuario");
 		btnDeleteUser.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		GridBagConstraints gbc_btnDeleteUser = new GridBagConstraints();
@@ -401,16 +465,16 @@ public class View extends JFrame {
 
 		/* Actions */
 
-		applications = fm.getApplications();
+		applications = fm.readData();
 		updateComboBoxes(comboBoxApplications, comboBoxApplicationsSave);
-		
+
 		textArea.setText(app(comboBoxApplications.getSelectedIndex()));
 		textArea.setCaretPosition(0);
 		btnDeleteApp.setName(String.valueOf(comboBoxApplications.getSelectedIndex()));
 		String URL = getURL(comboBoxApplications.getSelectedIndex());
 		btnURL.setText(URL);
 		btnURL.setName(URL);
-		
+
 		updateComboBoxCopy(comboBoxCopy, comboBoxApplications);
 		rdbtnNoExistApplication.setSelected(true);
 
@@ -438,8 +502,12 @@ public class View extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				rdbtnNoExistApplication.setSelected(false);
+				// TODO Auto-generated method stub	
+				if (appsEmpty()) {
+					rdbtnExistApplication.setSelected(false);
+					rdbtnNoExistApplication.setSelected(true);
+				}
+				else rdbtnNoExistApplication.setSelected(false);
 			}
 		});
 
@@ -448,10 +516,59 @@ public class View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				rdbtnExistApplication.setSelected(false);
+				if (appsEmpty()) {
+					rdbtnExistApplication.setSelected(false);
+					rdbtnNoExistApplication.setSelected(true);
+				}
+				else rdbtnExistApplication.setSelected(false);
 			}
 		});
 
+		textFieldNewApplication.addKeyListener(new KeyAdapter() {
+			public void keyTyped(KeyEvent e) {
+				char input = e.getKeyChar();
+				if (input == ';') {
+					e.consume();
+				}
+			}
+		});
+		
+		textFieldNewUser.addKeyListener(new KeyAdapter() {
+			public void keyTyped(KeyEvent e) {
+				char input = e.getKeyChar();
+				if (input == ';') {
+					e.consume();
+				}
+			}
+		});
+		
+		textFieldNewPass.addKeyListener(new KeyAdapter() {
+			public void keyTyped(KeyEvent e) {
+				char input = e.getKeyChar();
+				if (input == ';') {
+					e.consume();
+				}
+			}
+		});
+		
+		textFieldNewURL.addKeyListener(new KeyAdapter() {
+			public void keyTyped(KeyEvent e) {
+				char input = e.getKeyChar();
+				if (input == ';') {
+					e.consume();
+				}
+			}
+		});
+		
+		textAreaNewExtraInfo.addKeyListener(new KeyAdapter() {
+			public void keyTyped(KeyEvent e) {
+				char input = e.getKeyChar();
+				if (input == ';') {
+					e.consume();
+				}
+			}
+		});
+		
 		/* Buttons */
 
 		btnSearch.addActionListener(new ActionListener() {
@@ -506,7 +623,8 @@ public class View extends JFrame {
 						app.setUser(user);
 						if (addNoExistApp(app)) 
 							JOptionPane.showMessageDialog(null, name + " ya existe", "Error", JOptionPane.ERROR_MESSAGE);
-					}				
+					}			
+
 					updateComboBoxes(comboBoxApplications, comboBoxApplicationsSave);
 					textFieldNewUser.setText("");
 					textFieldNewPass.setText("");
@@ -522,12 +640,14 @@ public class View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				int option = JOptionPane.showConfirmDialog(null, "¿Desea eliminar la aplicación?", 
-						"ATENCIÓN", JOptionPane.YES_NO_OPTION);
-				if (option == JOptionPane.YES_OPTION) {
-					deleteApplication(comboBoxApplications.getSelectedIndex());
-					updateComboBoxes(comboBoxApplications, comboBoxApplicationsSave);
-					textArea.setText("");
+				if (!appsEmpty()) {
+					int option = JOptionPane.showConfirmDialog(null, "¿Desea eliminar la aplicación?", 
+							"ATENCIÓN", JOptionPane.YES_NO_OPTION);
+					if (option == JOptionPane.YES_OPTION) {
+						deleteApplication(comboBoxApplications.getSelectedIndex());
+						updateComboBoxes(comboBoxApplications, comboBoxApplicationsSave);
+						textArea.setText("");
+					}
 				}
 			}
 		});
@@ -537,27 +657,32 @@ public class View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				int option = JOptionPane.showConfirmDialog(null, "¿Desea eliminar el usuario " + getUser(comboBoxCopy, comboBoxApplications) + "?", 
-						"ATENCIÓN", JOptionPane.YES_NO_OPTION);
-				if (option == JOptionPane.YES_OPTION) {
-					deleteUser(comboBoxApplications.getSelectedIndex(), comboBoxCopy.getSelectedIndex());
-					updateComboBoxCopy(comboBoxCopy, comboBoxApplications);
-					textArea.setText(app(comboBoxApplications.getSelectedIndex()));
-					textArea.setCaretPosition(0);
+				if (!appsEmpty()) {
+					int option = JOptionPane.showConfirmDialog(null, "¿Desea eliminar el usuario " + getUser(comboBoxCopy, comboBoxApplications) + "?", 
+							"ATENCIÓN", JOptionPane.YES_NO_OPTION);
+					if (option == JOptionPane.YES_OPTION) {
+						deleteUser(comboBoxApplications.getSelectedIndex(), comboBoxCopy.getSelectedIndex());
+						updateComboBoxCopy(comboBoxCopy, comboBoxApplications);
+						textArea.setText(app(comboBoxApplications.getSelectedIndex()));
+						textArea.setCaretPosition(0);
+						updateComboBoxes(comboBoxApplications, comboBoxApplicationsSave);
+					}
 				}
 			}
 		});
-		
+
 		btnURL.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				try {
-					java.awt.Desktop.getDesktop().browse(
-							java.net.URI.create(btnURL.getName()));
-				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(null, "El formato de la URL debe ser: " + '\n' + "www.miPagina.com", "Error", JOptionPane.ERROR_MESSAGE);
+				if (!appsEmpty()) {
+					try {
+						java.awt.Desktop.getDesktop().browse(
+								java.net.URI.create(btnURL.getName()));
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(null, "El formato de la URL debe ser: " + '\n' + "www.miPagina.com", "Error", JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			}
 		});
@@ -567,9 +692,11 @@ public class View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				StringSelection stringSelection = new StringSelection (String.valueOf(comboBoxCopy.getSelectedItem()));
-				Clipboard clpbrd = Toolkit.getDefaultToolkit ().getSystemClipboard ();
-				clpbrd.setContents (stringSelection, null);
+				if (!appsEmpty()) {
+					StringSelection stringSelection = new StringSelection (String.valueOf(comboBoxCopy.getSelectedItem()));
+					Clipboard clpbrd = Toolkit.getDefaultToolkit ().getSystemClipboard ();
+					clpbrd.setContents (stringSelection, null);
+				}
 			}
 		});
 
@@ -578,13 +705,24 @@ public class View extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				StringSelection stringSelection = new StringSelection (getPass(comboBoxCopy, comboBoxApplications));
-				Clipboard clpbrd = Toolkit.getDefaultToolkit ().getSystemClipboard ();
-				clpbrd.setContents (stringSelection, null);
+				if (!appsEmpty()) {
+					StringSelection stringSelection = new StringSelection (getPass(comboBoxCopy, comboBoxApplications));
+					Clipboard clpbrd = Toolkit.getDefaultToolkit ().getSystemClipboard ();
+					clpbrd.setContents (stringSelection, null);
+				}
+			}
+		});
+
+		addWindowListener(new WindowAdapter(){
+			public void windowClosing(WindowEvent e) {
+				save();
 			}
 		});
 	}
 
+	private boolean appsEmpty() {
+		return this.applications.isEmpty();
+	}
 	private void updateComboBoxes(JComboBox<String> comboBoxApplications, JComboBox<String> comboBoxApplicationsSave) {	
 		ArrayList<String> data = new ArrayList<String>();
 
@@ -596,13 +734,15 @@ public class View extends JFrame {
 		comboBoxApplicationsSave.setModel(new DefaultComboBoxModel<>(new Vector<String>(data)));
 	}
 	private void updateComboBoxCopy(JComboBox<String> comboBoxCopy, JComboBox<String> comboBoxApplications) {
-		ArrayList<User> users = this.applications.get(comboBoxApplications.getSelectedIndex()).getUsers();
 		ArrayList<String> data = new ArrayList<String>();
 
-		for (int i = 0; i < users.size(); i++) {
-			data.add(users.get(i).getUser());
-		}
+		if (!this.applications.isEmpty()) {
+			ArrayList<User> users = this.applications.get(comboBoxApplications.getSelectedIndex()).getUsers();
 
+			for (int i = 0; i < users.size(); i++) {
+				data.add(users.get(i).getUser());
+			}
+		}
 		comboBoxCopy.setModel(new DefaultComboBoxModel<>(new Vector<String>(data)));
 	}
 	private String getUser(JComboBox<String> comboBoxCopy, JComboBox<String> comboBoxApplications) {
@@ -614,18 +754,22 @@ public class View extends JFrame {
 		return users.get(comboBoxCopy.getSelectedIndex()).getPass();
 	}
 	private String app(int application) {
-		Application app = this.applications.get(application);
-		String text = '\t' + "APLICACIÓN " + app.getName() + '\n' + '\n' ;
+		String text = "";
+		if (!this.applications.isEmpty()) {
+			Application app = this.applications.get(application);
+			text = '\t' + "APLICACIÓN " + app.getName() + '\n' + '\n' ;
 
-		ArrayList<User> users = app.getUsers();
+			ArrayList<User> users = app.getUsers();
 
-		for (int i = 0; i < users.size(); i++) {
-			text += users.get(i).toString();
+			for (int i = 0; i < users.size(); i++) {
+				text += users.get(i).toString();
+			}
 		}
 
 		return text;
 	}
 	private String getURL(int i) {
+		if (this.applications.isEmpty()) return "";
 		return this.applications.get(i).getURL();
 	}
 	private void deleteApplication(int i) {
@@ -633,10 +777,11 @@ public class View extends JFrame {
 	}
 	private void deleteUser(int i, int j) {
 		this.applications.get(i).getUsers().remove(j);
+		if (this.applications.get(i).getUsers().isEmpty()) deleteApplication(i);
 	}
 	private void addExistApp(Application app, int i) {	
 		this.applications.get(i).setUser(app.getUsers().get(0));
-		this.applications.get(i).setURL(app.getURL());
+		this.applications.get(i).setURL(this.applications.get(0).getURL());
 	}
 	private boolean addNoExistApp(Application app) {
 		boolean exist = false;
@@ -648,6 +793,26 @@ public class View extends JFrame {
 		}
 
 		if (!exist) this.applications.add(app);
+
 		return exist;
+	}
+	private void save() {
+		this.fm.writeData(this.applications);
+	}
+	private void exportModel() {
+		JFileChooser fc = new JFileChooser();
+		int result = fc.showSaveDialog(null);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			ExcelExporter excelExporter = new ExcelExporter();	
+			try {
+				excelExporter.export(this.applications, new File(file.getPath() + ".xls"));
+				JOptionPane.showMessageDialog(null, "Fichero generado con éxito", 
+						"Información", JOptionPane.INFORMATION_MESSAGE);
+			} catch (Exception e) {
+				// TODO: handle exception
+				JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 }
