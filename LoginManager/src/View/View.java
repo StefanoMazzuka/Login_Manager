@@ -88,28 +88,28 @@ public class View extends JFrame {
 		JMenuItem mntmExport = new JMenuItem("Exportar");
 		mntmExport.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		mnFile.add(mntmExport);
-		
+
 		mntmExport.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				exportModel();
 			}
 		});
-		
+
 		JMenu mnHelp = new JMenu("Ayuda");
 		mnHelp.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		menuBar.add(mnHelp);
-		
+
 		JMenuItem mntmChangePass = new JMenuItem("Cambiar contraseña");
 		mntmChangePass.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		mnHelp.add(mntmChangePass);
-		
+
 		JMenuItem mntmAbout = new JMenuItem("Sobre Login Manager");
 		mntmAbout.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		mnHelp.add(mntmAbout);
-		
+
 		JMenuItem mntmContact = new JMenuItem("Contacto");
 		mntmContact.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		mnHelp.add(mntmContact);
@@ -117,7 +117,7 @@ public class View extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new CardLayout(0, 0));
-		
+
 		mntmAbout.addActionListener(new ActionListener() {
 
 			@Override
@@ -131,7 +131,7 @@ public class View extends JFrame {
 				}
 			}
 		});
-		
+
 		mntmContact.addActionListener(new ActionListener() {
 
 			@Override
@@ -149,7 +149,7 @@ public class View extends JFrame {
 				JOptionPane.showMessageDialog( null, labels, null, JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
-		
+
 		JPanel panelSearch = new JPanel();
 		contentPane.add(panelSearch, "panelSearch");
 		panelSearch.setLayout(new BorderLayout(0, 0));
@@ -525,7 +525,7 @@ public class View extends JFrame {
 				}
 			}
 		});
-		
+
 		textFieldNewUser.addKeyListener(new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
 				char input = e.getKeyChar();
@@ -534,7 +534,7 @@ public class View extends JFrame {
 				}
 			}
 		});
-		
+
 		textFieldNewPass.addKeyListener(new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
 				char input = e.getKeyChar();
@@ -543,7 +543,7 @@ public class View extends JFrame {
 				}
 			}
 		});
-		
+
 		textFieldNewURL.addKeyListener(new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
 				char input = e.getKeyChar();
@@ -552,7 +552,7 @@ public class View extends JFrame {
 				}
 			}
 		});
-		
+
 		textAreaNewExtraInfo.addKeyListener(new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
 				char input = e.getKeyChar();
@@ -561,7 +561,7 @@ public class View extends JFrame {
 				}
 			}
 		});
-		
+
 		/* Buttons */
 
 		btnSearch.addActionListener(new ActionListener() {
@@ -711,21 +711,32 @@ public class View extends JFrame {
 				save(fm);
 			}
 		});
-		
+
 		mntmChangePass.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				JLabel label = new JLabel("Introduzca la nueva contraseña:");
-				JTextField pass = new JTextField(10);
+				JTextField pass = new JTextField(10);			
+
+				pass.addKeyListener(new KeyAdapter() {
+					public void keyTyped(KeyEvent e) {
+						char input = e.getKeyChar();
+						if (input == ';') {
+							e.consume();
+						}
+					}
+				});
+
 				JPanel panel = new JPanel();
 				panel.add(label);
 				panel.add(pass);
 				String[] options = new String[]{"Ok", "Cancelar"};
 				int option = JOptionPane.showOptionDialog(null, panel, "Nueva contraseña",
-				                         JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE,
-				                         null, options, options[1]);
+						JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE,
+						null, options, options[1]);
+
 				if (option == 0) {
 					int confirm = JOptionPane.showConfirmDialog(null, "¿Seguro que desea cambiar la contraseña a " + pass.getText() + "?", 
 							"ATENCIÓN", JOptionPane.YES_NO_OPTION);
