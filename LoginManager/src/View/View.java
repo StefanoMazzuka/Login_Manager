@@ -1,7 +1,6 @@
 package View;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -60,28 +59,11 @@ public class View extends JFrame {
 	private JTextField textFieldNewPass;
 	private JTextField textFieldNewURL;
 	private ArrayList<Application> applications = new ArrayList<Application>();
-	private FileManagement fm = new FileManagement();
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					View frame = new View();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
 	 */
-	public View() {
+	public View(FileManagement fm) {
 		setTitle("Login Manager");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(View.class.getResource("/Image/icon.png")));
@@ -119,6 +101,10 @@ public class View extends JFrame {
 		JMenu mnHelp = new JMenu("Ayuda");
 		mnHelp.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		menuBar.add(mnHelp);
+		
+		JMenuItem mntmChangePass = new JMenuItem("Cambiar contraseña");
+		mntmChangePass.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
+		mnHelp.add(mntmChangePass);
 		
 		JMenuItem mntmAbout = new JMenuItem("Sobre Login Manager");
 		mntmAbout.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
@@ -185,7 +171,7 @@ public class View extends JFrame {
 		gbc_lblTitle.gridy = 0;
 		panelInput.add(lblTitle, gbc_lblTitle);
 
-		JLabel lblApplication = new JLabel("Aplicaci\u00F3n");
+		JLabel lblApplication = new JLabel("Aplicación");
 		lblApplication.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		GridBagConstraints gbc_lblApplication = new GridBagConstraints();
 		gbc_lblApplication.anchor = GridBagConstraints.EAST;
@@ -194,7 +180,8 @@ public class View extends JFrame {
 		gbc_lblApplication.gridy = 1;
 		panelInput.add(lblApplication, gbc_lblApplication);
 
-		JComboBox comboBoxApplications = new JComboBox();
+		JComboBox<String> comboBoxApplications = new JComboBox<String>();
+		comboBoxApplications.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		GridBagConstraints gbc_comboBoxApplications = new GridBagConstraints();
 		gbc_comboBoxApplications.insets = new Insets(0, 0, 0, 5);
 		gbc_comboBoxApplications.fill = GridBagConstraints.HORIZONTAL;
@@ -235,7 +222,7 @@ public class View extends JFrame {
 		gbc_lblTitleNew.gridy = 0;
 		panelNew.add(lblTitleNew, gbc_lblTitleNew);
 
-		JLabel lblExistApplication = new JLabel("Aplicaci\u00F3n existente");
+		JLabel lblExistApplication = new JLabel("Aplicación existente");
 		lblExistApplication.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		GridBagConstraints gbc_lblExistApplication = new GridBagConstraints();
 		gbc_lblExistApplication.insets = new Insets(0, 0, 5, 5);
@@ -244,7 +231,8 @@ public class View extends JFrame {
 		gbc_lblExistApplication.gridy = 1;
 		panelNew.add(lblExistApplication, gbc_lblExistApplication);
 
-		JComboBox comboBoxApplicationsSave = new JComboBox();
+		JComboBox<String> comboBoxApplicationsSave = new JComboBox<String>();
+		comboBoxApplicationsSave.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		GridBagConstraints gbc_comboBoxApplicationsSave = new GridBagConstraints();
 		gbc_comboBoxApplicationsSave.insets = new Insets(0, 0, 5, 5);
 		gbc_comboBoxApplicationsSave.fill = GridBagConstraints.HORIZONTAL;
@@ -260,7 +248,7 @@ public class View extends JFrame {
 		gbc_rdbtnExistApplication.gridy = 1;
 		panelNew.add(rdbtnExistApplication, gbc_rdbtnExistApplication);
 
-		JLabel lblNoExistApplication = new JLabel("Nueva aplicaci\u00F3n");
+		JLabel lblNoExistApplication = new JLabel("Nueva aplicación");
 		lblNoExistApplication.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		GridBagConstraints gbc_lblNoExistApplication = new GridBagConstraints();
 		gbc_lblNoExistApplication.insets = new Insets(0, 0, 5, 5);
@@ -270,6 +258,7 @@ public class View extends JFrame {
 		panelNew.add(lblNoExistApplication, gbc_lblNoExistApplication);
 
 		textFieldNewApplication = new JTextField();
+		textFieldNewApplication.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		GridBagConstraints gbc_textFieldNewApplication = new GridBagConstraints();
 		gbc_textFieldNewApplication.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textFieldNewApplication.insets = new Insets(0, 0, 5, 5);
@@ -296,6 +285,7 @@ public class View extends JFrame {
 		panelNew.add(lblNewUser, gbc_lblNewUser);
 
 		textFieldNewUser = new JTextField();
+		textFieldNewUser.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		GridBagConstraints gbc_textFieldNewUser = new GridBagConstraints();
 		gbc_textFieldNewUser.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textFieldNewUser.insets = new Insets(0, 0, 5, 5);
@@ -314,7 +304,7 @@ public class View extends JFrame {
 		gbc_lblImportant1.gridy = 3;
 		panelNew.add(lblImportant1, gbc_lblImportant1);
 
-		JLabel lblNewPass = new JLabel("Contrase\u00F1a");
+		JLabel lblNewPass = new JLabel("Contraseña");
 		lblNewPass.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		GridBagConstraints gbc_lblNewPass = new GridBagConstraints();
 		gbc_lblNewPass.anchor = GridBagConstraints.EAST;
@@ -324,6 +314,7 @@ public class View extends JFrame {
 		panelNew.add(lblNewPass, gbc_lblNewPass);
 
 		textFieldNewPass = new JTextField();
+		textFieldNewPass.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		GridBagConstraints gbc_textFieldNewPass = new GridBagConstraints();
 		gbc_textFieldNewPass.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textFieldNewPass.insets = new Insets(0, 0, 5, 5);
@@ -352,6 +343,7 @@ public class View extends JFrame {
 		panelNew.add(lblNewUrl, gbc_lblNewUrl);
 
 		textFieldNewURL = new JTextField();
+		textFieldNewURL.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		GridBagConstraints gbc_textFieldNewURL = new GridBagConstraints();
 		gbc_textFieldNewURL.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textFieldNewURL.insets = new Insets(0, 0, 5, 5);
@@ -360,7 +352,7 @@ public class View extends JFrame {
 		panelNew.add(textFieldNewURL, gbc_textFieldNewURL);
 		textFieldNewURL.setColumns(10);
 
-		JLabel lblNewExtraInfo = new JLabel("Informaci\u00F3n extra");
+		JLabel lblNewExtraInfo = new JLabel("Información extra");
 		lblNewExtraInfo.setFont(new Font("Yu Gothic UI", Font.PLAIN, 12));
 		GridBagConstraints gbc_lblNewExtraInfo = new GridBagConstraints();
 		gbc_lblNewExtraInfo.anchor = GridBagConstraints.NORTHEAST;
@@ -419,7 +411,7 @@ public class View extends JFrame {
 		panelButtons.add(btnURL, gbc_btnURL);
 		btnURL.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 
-		JButton btnDeleteApp = new JButton("Borrar aplicaci\u00F3n");
+		JButton btnDeleteApp = new JButton("Borrar aplicación");
 		btnDeleteApp.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		GridBagConstraints gbc_btnDeleteApp = new GridBagConstraints();
 		gbc_btnDeleteApp.insets = new Insets(0, 0, 5, 0);
@@ -428,7 +420,8 @@ public class View extends JFrame {
 		gbc_btnDeleteApp.gridy = 0;
 		panelButtons.add(btnDeleteApp, gbc_btnDeleteApp);
 
-		JComboBox comboBoxCopy = new JComboBox();
+		JComboBox<String> comboBoxCopy = new JComboBox<String>();
+		comboBoxCopy.setFont(new Font("Yu Gothic UI", Font.PLAIN, 11));
 		comboBoxCopy.setToolTipText("Usuario");
 		GridBagConstraints gbc_comboBoxCopy = new GridBagConstraints();
 		gbc_comboBoxCopy.insets = new Insets(0, 0, 5, 5);
@@ -715,7 +708,29 @@ public class View extends JFrame {
 
 		addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e) {
-				save();
+				save(fm);
+			}
+		});
+		
+		mntmChangePass.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				JLabel label = new JLabel("Introduzca la nueva contraseña:");
+				JTextField pass = new JTextField(10);
+				JPanel panel = new JPanel();
+				panel.add(label);
+				panel.add(pass);
+				String[] options = new String[]{"Ok", "Cancelar"};
+				int option = JOptionPane.showOptionDialog(null, panel, "Nueva contraseña",
+				                         JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE,
+				                         null, options, options[1]);
+				if (option == 0) {
+					int confirm = JOptionPane.showConfirmDialog(null, "¿Seguro que desea cambiar la contraseña a " + pass.getText() + "?", 
+							"ATENCIÓN", JOptionPane.YES_NO_OPTION);
+					if (confirm == JOptionPane.YES_OPTION) fm.setLoginPass(pass.getText());
+				}
 			}
 		});
 	}
@@ -796,8 +811,8 @@ public class View extends JFrame {
 
 		return exist;
 	}
-	private void save() {
-		this.fm.writeData(this.applications);
+	private void save(FileManagement fm) {
+		fm.writeData(this.applications);
 	}
 	private void exportModel() {
 		JFileChooser fc = new JFileChooser();

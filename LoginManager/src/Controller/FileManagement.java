@@ -18,7 +18,8 @@ import javax.crypto.spec.SecretKeySpec;
 public class FileManagement {
 
 	private final String path = System.getProperty("user.dir") + File.separator + "data";
-	private static String secretKey = "PonerLaClaveDeLong20";
+	private static String secretKey = "SecretKeyMustBe20lon";
+	private String loginPass;
 
 	/* Constructor */
 
@@ -31,7 +32,6 @@ public class FileManagement {
 		String base64EncryptedString = "";
 
 		try {
-
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] digestOfPassword = md.digest(secretKey.getBytes("utf-8"));
 			byte[] keyBytes = Arrays.copyOf(digestOfPassword, 24);
@@ -75,12 +75,7 @@ public class FileManagement {
 		ArrayList<Application> apps = new ArrayList<Application>();
 
 		File file = new File(this.path);
-		try {
-			file.createNewFile();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		
 		try {
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
@@ -97,7 +92,7 @@ public class FileManagement {
 				String[] data = line.split(";", -1);
 
 				String name, url;
-				for (int i = 0; i < data.length - 1; i += 5) {
+				for (int i = 1; i < data.length - 1; i += 5) {
 					name = data[i];					
 					url = data[i + 1];					
 
@@ -130,11 +125,52 @@ public class FileManagement {
 
 		return apps;
 	}
+	public void readLogin() {
+
+		File file = new File(this.path);
+		if (!file.exists()) {
+			this.loginPass = "admin";
+			try {
+				file.createNewFile();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+
+		else {
+			try {
+				FileReader fr = new FileReader(file);
+				BufferedReader br = new BufferedReader(fr);
+
+				String line = "";
+				if ((line = br.readLine()) != null) {
+					try {
+						line = decrypt(line);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					String[] data = line.split(";", -1);
+
+					this.loginPass = data[0];
+				}
+
+				fr.close();
+				br.close();
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	public void writeData(ArrayList<Application> apps) {
 
 		File file = new File(this.path);
 
-		String data = "";
+		String data = this.loginPass + ";";
 
 		try {
 			FileWriter fw = new FileWriter(file);
@@ -149,7 +185,7 @@ public class FileManagement {
 							+ apps.get(i).getUsers().get(j).getExtra() + ";";
 				}
 			}
-			
+
 			data = encrypt(data);	
 			out.write(data);
 			out.flush();
@@ -169,5 +205,14 @@ public class FileManagement {
 			}
 		}
 		return pos;
+	}
+
+	/* Getters & Setters */
+
+	public String getLoginPass() {
+		return loginPass;
+	}
+	public void setLoginPass(String loginPass) {
+		this.loginPass = loginPass;
 	}
 }
